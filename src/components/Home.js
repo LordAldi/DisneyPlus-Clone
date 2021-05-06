@@ -1,10 +1,25 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import ImgSlider from "./ImgSlider";
 import Movies from "./Movies";
 import Viewers from "./Viewers";
+import db from "../firebase";
+import { useDispatch } from "react-redux";
+import { setMovies } from "../features/movie/movieSlice";
+
+const { REACT_APP_API_KEY } = process.env;
 
 function Home() {
+  const dispacth = useDispatch();
+  useEffect(() => {
+    console.log("belomm");
+    db.collection("movies").onSnapshot((snapshot) => {
+      let tmpMovies = snapshot.docs.map((doc) => {
+        return { id: doc.id, ...doc.data() };
+      });
+      dispacth(setMovies(tmpMovies));
+    });
+  }, []);
   return (
     <Container>
       <ImgSlider />

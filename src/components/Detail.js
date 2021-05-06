@@ -1,39 +1,57 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+import { useParams } from "react-router-dom";
+import db from "../firebase";
 function Detail() {
+  const { id } = useParams();
+
+  const [movie, setMovie] = useState();
+
+  useEffect(() => {
+    db.collection("movies")
+      .doc(id)
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          setMovie(doc.data());
+        } else {
+          //redirect to homepage
+        }
+      });
+  }, []);
+  console.log(movie);
   return (
     <Container>
-      <Background>
-        <img src="https://prod-ripcut-delivery.disney-plus.net/v1/variant/disney/4F39B7E16726ECF419DD7C49E011DD95099AA20A962B0B10AA1881A70661CE45/scale?width=1440&aspectRatio=1.78&format=jpeg" />
-      </Background>
-      <ImageTittle>
-        <img src="https://prod-ripcut-delivery.disney-plus.net/v1/variant/disney/D7AEE1F05D10FC37C873176AAA26F777FC1B71E7A6563F36C6B1B497CAB1CEC2/scale?width=1440&aspectRatio=1.78" />
-      </ImageTittle>
-      <Controls>
-        <PlayButton>
-          <img src="/images/play-icon-black.png" />
-          <span>Play</span>
-        </PlayButton>
-        <TrailerButton>
-          <img src="/images/play-icon-white.png" />
-          <span>Trailer</span>
-        </TrailerButton>
-        <AddButton>
-          <span>+</span>
-        </AddButton>
-        <GroupWatchButton>
-          <img src="/images/group-icon.png" />
-        </GroupWatchButton>
-      </Controls>
-      <Subtitle>2017 # 7m # Family, Fantasy, Kids, Animation</Subtitle>
-      <Description>
-        Integer eget ultrices augue. Sed feugiat lacus vitae velit commodo
-        auctor. Aenean in nulla ac dolor mattis molestie venenatis ac arcu.
-        Maecenas ultricies convallis ipsum eget ullamcorper. Donec vitae aliquam
-        dui, sodales luctus lorem. Cras lorem purus, fringilla eget erat a,
-        luctus malesuada elit. Nam vitae orci commodo, dignissim neque id,
-        faucibus urna.
-      </Description>
+      {movie ? (
+        <>
+          <Background>
+            <img alt={`background ${movie.title}`} src={movie.backgroundImg} />
+          </Background>
+          <ImageTittle>
+            <img alt={`${movie.title}`} src={movie.titleImg} />
+          </ImageTittle>
+          <Controls>
+            <PlayButton>
+              <img src="/images/play-icon-black.png" />
+              <span>Play</span>
+            </PlayButton>
+            <TrailerButton>
+              <img src="/images/play-icon-white.png" />
+              <span>Trailer</span>
+            </TrailerButton>
+            <AddButton>
+              <span>+</span>
+            </AddButton>
+            <GroupWatchButton>
+              <img src="/images/group-icon.png" />
+            </GroupWatchButton>
+          </Controls>
+          <Subtitle>{movie.subTitle}</Subtitle>
+          <Description>{movie.description}</Description>
+        </>
+      ) : (
+        <h1>Loading...</h1>
+      )}
     </Container>
   );
 }
@@ -65,6 +83,8 @@ const ImageTittle = styled.div`
   width: 35vw;
   min-width: 200px;
   margin-top: 60px;
+  margin-bottom: 60px;
+
   img {
     width: 100%;
     height: 100%;
